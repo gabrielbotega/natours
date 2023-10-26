@@ -13,7 +13,7 @@ export const bookTour = async (tourId, date) => {
     // 1) Get checkout session from API
     const session = await axios({
       method: "GET",
-      url: `http://127.0.0.1:3000/api/v1/bookings/checkout-session/tour/${tourId}/date/${date}`,
+      url: `/api/v1/bookings/checkout-session/tour/${tourId}/date/${date}`,
     });
 
     // console.log(session);
@@ -23,7 +23,7 @@ export const bookTour = async (tourId, date) => {
     // });
     window.location.replace(session.data.session.url);
   } catch (err) {
-    console.log(err);
+    //console.log(err);
     showAlert("error", err);
   }
 };

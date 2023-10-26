@@ -166,11 +166,11 @@ tourSchema.pre(/^find/, function (next) {
   next();
 }); // Using populate means that it'll fill the referenceId with the guides info when I query the 'getTour'. This creates a new (secondary) query, therefore it might diminish the performance. So, if you have a large application with several populate you should take this into account. This way, every "find" method will be populated
 
-tourSchema.post(/^find/, function (docs, next) {
-  // console.log(docs);
-  console.log(`This query took ${Date.now() - this.start} milliseconds.`);
-  next();
-});
+// tourSchema.post(/^find/, function (docs, next) {
+//   // console.log(docs);
+//   console.log(`This query took ${Date.now() - this.start} milliseconds.`);
+//   next();
+// });
 
 //--------------------- AGGREGATION MIDDLEWARE
 // tourSchema.pre("aggregate", function (next) {

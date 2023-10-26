@@ -7,7 +7,7 @@ export const login = async (email, password) => {
   try {
     const res = await axios({
       method: "POST",
-      url: "http://127.0.0.1:3000/api/v1/users/login",
+      url: "/api/v1/users/login",
       data: {
         email: email,
         password: password,
@@ -30,11 +30,10 @@ export const logout = async () => {
   try {
     const res = await axios({
       method: "GET",
-      url: "http://127.0.0.1:3000/api/v1/users/logout",
+      url: "/api/v1/users/logout",
     });
 
-    if (res.data.status === "success")
-      location.replace("http://127.0.0.1:3000/overview"); //forces a reload from the server, not the browser cache. Mandatory to get the new invalid cookie
+    if (res.data.status === "success") location.replace("/overview"); //forces a reload from the server, not the browser cache. Mandatory to get the new invalid cookie
   } catch (err) {
     showAlert("error", "Error Logging out. Try again.");
   }

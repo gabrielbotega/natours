@@ -109,7 +109,7 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
       runValidators: true,
     }
   );
-  console.log("UPDATED", updatedUser);
+  // console.log("UPDATED", updatedUser);
   //need to update the user. If I just render the page it'll get the user from the protected middleware (not updated.)
   res.status(200).render("account", {
     title: "Your account",

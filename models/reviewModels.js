@@ -57,6 +57,7 @@ reviewSchema.pre(/^find/, function (next) {
 //This function will be a "static method" of mongoDB, meaning that I can call this function directly in the model associated (Review.function). A static method is defined on the schema using the statics object.
 // Schema X Static Method: Schema method is associated with the document instance (e.g., a specific user) while static schema is related to the MODEL. Therefore, it'll operate through all the instances (all collections)
 
+// 'this' here means the Model
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
   const stats = await this.aggregate([
     {

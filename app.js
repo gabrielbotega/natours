@@ -9,6 +9,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp"); // http parameter pollution
 const cookieParser = require("cookie-parser"); //This will parse (analize) every cookie from the incoming request
+const compression = require("compression");
 
 const AppError = require("./utils/appError");
 const errorControllerHandling = require("./controllers/errorController");
@@ -116,6 +117,9 @@ app.use(
 //   console.log("Hello from the middleware! 🖐");
 //   next(); //very important. Otherwise it'ld be stuck in this middleware forever
 // }); //This print to console because it is processed between the request, response cycle. Since I had a request in my API, I'll have a processing (middleware function)
+
+// Compress all the text sent to the client
+app.use(compression());
 
 // Test Middleware
 app.use((req, res, next) => {
