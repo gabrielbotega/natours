@@ -20,7 +20,7 @@ const DB = process.env.DATABASE.replace(
 
 mongoose.connect(DB, {}).then(() => console.log("DB connection success")); //are some options to deal with deprecation wornigs. mongoose.connect returns a promise
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 const server = app.listen(port, () => {
   console.log(`App running on the port ${port}`);
