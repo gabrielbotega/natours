@@ -14,22 +14,22 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
-  const cookieOptions = {
+  /*Therefore, in order to logout the user, knowing that we can not manipulate the cookie, what we can do is to create another cookie, with
+  the same name and send it as response. It'll override the original cookie, however without the actual token. Then, not recognizing the user
+  we'll logout.*/
+
+  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true; The problem here is that not every timne we go to 'production' we gonna gave a https connection.
+
+  res.cookie("jwt", token, {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 60 * 60 * 1000
     ), // needs to be in miliseconds
     // secure: true, // meaning that the cookie will only be sent in a secure connection (https)
     httpOnly: true, // The cookie cant be accessed or modified in anyway by the browser. (the browser will receive the cookie, store it and send it back in every request)
-  };
-  /*Therefore, in order to logout the user, knowing that we can not manipulate the cookie, what we can do is to create another cookie, with
-  the same name and send it as response. It'll override the original cookie, however without the actual token. Then, not recognizing the user
-  we'll logout.*/
-
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
-
-  res.cookie("jwt", token, cookieOptions);
+    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+  });
 
   // Remove password from output
   user.password = undefined;
@@ -93,7 +93,7 @@ exports.emailConfirmation = catchAsync(async (req, res, next) => {
   user.emailConfirmed = true;
   await user.save({ validateBeforeSave: true });
 
-  createSendToken(user, 201, res);
+  createSendToken(user, 201, req, res);
 
   req.user = user;
   res.locals.user = user;
@@ -119,7 +119,7 @@ exports.login = catchAsync(async (req, res, next) => {
     next(new AppError("Incorrect email or password", 401));
   } //interesting to check together is to give no info to a racker what is incorrect
   // 3) if everything is OK, JWT to client
-  const token = createSendToken(user, 200, res);
+  const token = createSendToken(user, 200, req, res);
 
   res.status(200).json({
     status: "success",
@@ -327,7 +327,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 3) Update the changedPasswordAt property for the user --- It's a property running behind the scenes always when we have a change in the password and the document is not new. ------Go to user model
   // 4) Log the user in, send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -346,5 +346,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save(); // Not turning off the validators because we want to validate.
 
   // 4) Send new JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });

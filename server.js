@@ -9,10 +9,6 @@ process.on("uncaughtException", (err) => {
 
 const app = require("./app");
 
-// console.log(app.get("env")); // development. This is the environment we're currently in.
-// console.log(process.env);
-// console.log(process.env.NODE_ENV);
-
 const DB = process.env.DATABASE.replace(
   "<PASSWORD>",
   process.env.DATABASE_PASSWORD
@@ -33,3 +29,11 @@ process.on("unhandledRejection", (err) => {
     process.exit(1);
   });
 }); // this will handle all the rejected promisses (imagine if the db goes down, it's outside of express. Now this will handle it)
+
+// If we receive a SIGTERM signal (signal to make the program stop running) - the server may shut down abruptly and this is not ideal
+process.on("SIGTERM", () => {
+  console.log("SIGTERM RECEIVED, SHUTTING DOWN");
+  server.close(() => {
+    console.log("Process Terminated");
+  });
+}); // Do not need the 'process.exit' because the SIGTERM itself will make the server shutdown
