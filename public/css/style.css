@@ -21,6 +21,10 @@
   box-sizing: inherit;
 }
 
+img {
+  max-width: 100%;
+}
+
 html {
   font-size: 62.5%;
   -webkit-box-sizing: border-box;
@@ -41,6 +45,7 @@ body {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .main {
