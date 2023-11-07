@@ -18,12 +18,14 @@ router.get("/", (req, res) => {
 }); //this is the path to the base in the views folder. This will render the site. Express will look into it automatically. It'll take the base template, render and than sent it as a response to the browser
 */
 
-router.get(
-  "/",
-  authcontroller.isLoggedIn,
-  bookingcontroller.createBookingCheckout,
-  viewsController.getOverview
-);
+const isDevelopmentEnvironment = () => {
+  if (process.env.NODE_ENV === "development")
+    return bookingcontroller.createBookingCheckout;
+
+  return bookingcontroller.webhookCheckout;
+};
+
+router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
 router.get("/overview", authcontroller.isLoggedIn, viewsController.getOverview);
 router.get(
   "/tour/:tourSlug",
@@ -39,7 +41,12 @@ router.get(
 router.get("/login", authcontroller.isLoggedIn, viewsController.getLoginForm);
 router.get("/signup", viewsController.getSignupForm);
 router.get("/me", authcontroller.protect, viewsController.getAccount);
-router.get("/my-tours", authcontroller.protect, viewsController.getMyTours);
+router.get(
+  "/my-tours",
+  isDevelopmentEnvironment(),
+  authcontroller.protect,
+  viewsController.getMyTours
+);
 
 //route defined to meed the requirements to get the data directly from the HTML
 router.post(

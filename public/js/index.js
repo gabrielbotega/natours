@@ -18,7 +18,7 @@ const signUpForm = document.querySelector(".signup-form");
 
 // Delegation
 if (mapBox) {
-  const locations = JSON.parse(mapBox.dataset.locations); // This only appears in the page that has the map. In other page it'll display an error. To solve this problem I gonna create a If statement.
+  const locations = JSON.parse(mapBox.dataset.locations); // This only appears in the page that has the map. In other page it'll display an error. To solve this problem I gonna create a If statement. Using 'dataset' here is possibile due to the 'data-' used in tour.pug
   displayMap(locations);
 }
 
@@ -113,7 +113,7 @@ if (bookBtn) {
     bookBtn.textContent = "Book the tour";
     bookBtn.addEventListener("click", (e) => {
       e.target.textContent = "Processing...";
-      const tourId = e.target.dataset.tourId;
+      const tourId = e.target.dataset.tourId; //Using 'dataset' here is possibile due to the 'data-' used in tour.pug. Nothe that we've changed tour-id to cammelCase notation.
       const date = document.getElementById("date-selection").value;
 
       bookTour(tourId, date);

@@ -18,6 +18,7 @@ const userRouter = require("./dev-data/routes/userRoutes");
 const reviewRouter = require("./dev-data/routes/reviewRoutes");
 const bookingRouter = require("./dev-data/routes/bookingRoutes");
 const viewRouter = require("./dev-data/routes/viewRoutes");
+const bookingController = require("./controllers/bookingController");
 
 // Start express app
 const app = express();
@@ -89,6 +90,16 @@ const limiter = rateLimit({
   message: "Too many requests from this IP. Please try again in an hour.",
 });
 app.use("/api", limiter);
+
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  bookingController.webhookCheckout
+);
+/* We're Using this route here and not in the bookingrouter because in this handler function, when we receive the body from Stripe
+it needs to be in the raw form, not JSON, to be processed in the Stripe function we gonna use.
+However, as soon as we reach the next middleware "app.use(express.json({ limit: "10kb" }))", the body will be parsed and converted into JSON.
+*/
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: "10kb" })); //express.json() is the middleware [function which modifies the incoming data]. it's just a step the request goes through while it's being processed. This proccess allows the data from the body of the request be added to the request object. (express does not contain the body method)

@@ -1,5 +1,6 @@
 const Stripe = require("stripe");
 const Tour = require("../models/tourModels");
+const User = require("../models/userModels");
 const catchAsync = require("../utils/catchAsync");
 const Booking = require("../models/bookingModel");
 const factory = require("./handlerFactory");
@@ -25,14 +26,23 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     product: product.id,
     unit_amount: tour.price * 100,
     currency: "usd",
+    metadata: {
+      bookingDate: bookingDate,
+    },
   });
+
+  let successUrl = `${req.protocol}://${req.get("host")}/my-tours/?tour=${
+    tour.id
+  }&user=${req.user.id}&price=${tour.price}&tourDate=${bookingDate}`;
+
+  if (process.env.NODE_ENV === "production") {
+    successUrl = `${req.protocol}://${req.get("host")}/my-tours/`;
+  }
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
 
-    success_url: `${req.protocol}://${req.get("host")}/?tour=${tour.id}&user=${
-      req.user.id
-    }&price=${tour.price}&tourDate=${bookingDate}`,
+    success_url: successUrl,
 
     cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
     customer_email: req.user.email,
@@ -67,6 +77,36 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   res.redirect(req.originalUrl.split("?")[0]); // originalUrl in this case is the success_url (this solution is going to pass throu the
   //middleware two times)
 });
+
+const createBookingCheckoutSession = async (session) => {
+  const tour = session.client_reference_id;
+  const user = (await User.findOne({ email: session.customer_email })).id;
+  const price = session.line_items[0].price.unit_amount / 100;
+  const tourDate = session.line_items[0].price.metadata[0].BookingDate;
+
+  await Booking.create({ tour, user, price, tourDate });
+};
+
+exports.webhookCheckout = (req, res, next) => {
+  const stripe = Stripe(process.env.STRIPE_SECRETKEY);
+  const signature = req.headers["stripe-signature"];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRETKEY
+    ); // req.body here is in the raw form.
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`); //It's stripe who will receive this response because it's stripe who calls the URL (thus the function)
+  }
+
+  if (event.type === "checkout.session.complete")
+    createBookingCheckoutSession(event.data.object);
+
+  res.status(200).json({ received: true });
+};
 
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
