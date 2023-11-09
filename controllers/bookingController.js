@@ -19,6 +19,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const product = await stripe.products.create({
     name: `${tour.name} Tour`,
     description: tour.summary,
+    metadata: {
+      bookingDate: bookingDate,
+    },
     images: [
       `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
     ],
@@ -28,9 +31,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     product: product.id,
     unit_amount: tour.price * 100,
     currency: "usd",
-    metadata: {
-      bookingDate: bookingDate,
-    },
   });
 
   let successUrl = `${req.protocol}://${req.get("host")}/my-tours/?tour=${
@@ -80,16 +80,20 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   //middleware two times)
 });
 
-const createBookingCheckoutSession = async (session) => {
+const createBooking = async (session) => {
+  const stripe = Stripe(process.env.STRIPE_SECRETKEY);
+  const product = await stripe.products.retrieve(session.client_reference_id);
+
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
   const price = session.line_items[0].price.unit_amount / 100;
-  const tourDate = session.line_items[0].price.metadata[0].BookingDate;
+  // const tourDate = session.line_items[0].price.metadata[0].BookingDate;
+  const tourDate = product.metadata.bookingDate;
 
   await Booking.create({ tour, user, price, tourDate });
 };
 
-exports.webhookCheckout = async (session, req, res, next) => {
+exports.webhookCheckout = async (req, res, session, next) => {
   let event;
   if (!session) next();
   try {
@@ -104,8 +108,11 @@ exports.webhookCheckout = async (session, req, res, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`); //It's stripe who will receive this response because it's stripe who calls the URL (thus the function)
   }
 
-  if (event.type === "checkout.session.completed")
-    createBookingCheckoutSession(event.data.object);
+  if (
+    event.type === "checkout.session.completed" &&
+    event.data.object.status === "paid"
+  )
+    createBooking(event.data.object);
 
   res.status(200).json({ received: true });
 };
