@@ -19,7 +19,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const product = await stripe.products.create({
     name: `${tour.name} Tour`,
     description: tour.summary,
-    images: [`https://www.natours.dev/img/tours/${tour.imageCover}`],
+    images: [
+      `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
+    ],
   });
 
   const price = await stripe.prices.create({
@@ -87,12 +89,12 @@ const createBookingCheckoutSession = async (session) => {
   await Booking.create({ tour, user, price, tourDate });
 };
 
-exports.webhookCheckout = (req, res, next) => {
-  const stripe = Stripe(process.env.STRIPE_SECRETKEY);
-  const signature = req.headers["stripe-signature"];
-
+exports.webhookCheckout = async (session, req, res, next) => {
   let event;
+  if (!session) next();
   try {
+    const stripe = Stripe(process.env.STRIPE_SECRETKEY);
+    const signature = req.headers["stripe-signature"];
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
@@ -102,7 +104,7 @@ exports.webhookCheckout = (req, res, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`); //It's stripe who will receive this response because it's stripe who calls the URL (thus the function)
   }
 
-  if (event.type === "checkout.session.complete")
+  if (event.type === "checkout.session.completed")
     createBookingCheckoutSession(event.data.object);
 
   res.status(200).json({ received: true });
