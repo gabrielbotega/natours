@@ -81,16 +81,22 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 });
 
 const createBooking = async (session) => {
-  const stripe = Stripe(process.env.STRIPE_SECRETKEY);
-  const product = await stripe.products.retrieve(session.client_reference_id);
+  try {
+    const tour = session.client_reference_id;
+    const user = (await User.findOne({ email: session.customer_email }))?.id;
 
-  const tour = session.client_reference_id;
-  const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items[0].price.unit_amount / 100;
-  // const tourDate = session.line_items[0].price.metadata[0].BookingDate;
-  const tourDate = product.metadata.bookingDate;
+    if (!user) {
+      console.error(`User not found for email: ${session.customer_email}`);
+      return;
+    }
 
-  await Booking.create({ tour, user, price, tourDate });
+    const price = session.line_items[0].price.unit_amount / 100;
+    const tourDate = session.line_items[0].price.product.metadata.bookingDate;
+
+    await Booking.create({ tour, user, price, tourDate });
+  } catch (error) {
+    console.error("Error creating booking:", error);
+  }
 };
 
 exports.webhookCheckout = async (req, res, session, next) => {
