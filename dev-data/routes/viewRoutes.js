@@ -23,7 +23,6 @@ const isDevelopmentEnvironment = () => {
     return bookingcontroller.createBookingCheckout;
 
   // return bookingcontroller.webhookCheckout;
-  return undefined;
 };
 
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
@@ -44,7 +43,13 @@ router.get("/signup", viewsController.getSignupForm);
 router.get("/me", authcontroller.protect, viewsController.getAccount);
 router.get(
   "/my-tours",
-  isDevelopmentEnvironment(),
+  // Ternary operator to conditionally return middleware
+  isDevelopmentEnvironment()
+    ? bookingcontroller.createBookingCheckout
+    : undefined,
+  (req, res, next) => {
+    next(); // Pass the request to the next middleware
+  },
   authcontroller.protect,
   viewsController.getMyTours
 );
