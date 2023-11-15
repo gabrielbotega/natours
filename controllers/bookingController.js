@@ -83,7 +83,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 const createBooking = async (session) => {
   try {
     const tour = session.client_reference_id;
-    const user = (await User.findOne({ email: session.customer_email }))?.id;
+    const user = (await User.findOne({ email: session.customer_email })).id;
 
     if (!user) {
       console.error(`User not found for email: ${session.customer_email}`);
