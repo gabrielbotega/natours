@@ -93,7 +93,7 @@ app.use("/api", limiter);
 
 app.post(
   "/webhook-checkout",
-  express.raw({ type: "application/json" }),
+  express.json({ type: "application/json" }),
   bookingController.webhookCheckout
 );
 /* We're Using this route here and not in the bookingrouter because in this handler function, when we receive the body from Stripe
