@@ -114,10 +114,7 @@ exports.webhookCheckout = async (req, res, session, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`); //It's stripe who will receive this response because it's stripe who calls the URL (thus the function)
   }
 
-  if (
-    event.type === "checkout.session.completed" &&
-    event.data.object.status === "paid"
-  )
+  if (event.type === "checkout.session.completed")
     createBooking(event.data.object);
 
   res.status(200).json({ received: true });
