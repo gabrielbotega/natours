@@ -38,7 +38,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   }&user=${req.user.id}&price=${tour.price}&tourDate=${bookingDate}`;
 
   if (process.env.NODE_ENV === "production") {
-    successUrl = `${req.protocol}://${req.get("host")}/my-tours/`;
+    successUrl = `${req.protocol}://${req.get("host")}/my-tours`;
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -99,9 +99,9 @@ const createBooking = async (session) => {
   }
 };
 
-exports.webhookCheckout = async (req, res, session, next) => {
-  let event;
+exports.webhookCheckout = async (req, res, next, session) => {
   if (!session) next();
+  let event;
   try {
     const stripe = Stripe(process.env.STRIPE_SECRETKEY);
     const signature = req.headers["stripe-signature"];

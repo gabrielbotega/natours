@@ -22,7 +22,8 @@ const isDevelopmentEnvironment = () => {
   if (process.env.NODE_ENV === "development")
     return bookingcontroller.createBookingCheckout;
 
-  return bookingcontroller.webhookCheckout;
+  // return bookingcontroller.webhookCheckout;
+  return true;
 };
 
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
