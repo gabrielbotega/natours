@@ -9,6 +9,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp"); // http parameter pollution
 const cookieParser = require("cookie-parser"); //This will parse (analize) every cookie from the incoming request
+const bodyParser = require("body-parser");
 const compression = require("compression");
 
 const AppError = require("./utils/appError");
@@ -93,7 +94,7 @@ app.use("/api", limiter);
 
 app.post(
   "/webhook-checkout",
-  express.json({ type: "application/json" }),
+  bodyParser.raw({ type: "application/json" }),
   bookingController.webhookCheckout
 );
 /* We're Using this route here and not in the bookingrouter because in this handler function, when we receive the body from Stripe
