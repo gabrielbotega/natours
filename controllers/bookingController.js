@@ -99,8 +99,7 @@ const createBooking = async (session) => {
   }
 };
 
-exports.webhookCheckout = async (req, res, next, session) => {
-  if (!session) next();
+exports.webhookCheckout = async (req, res, next) => {
   let event;
   try {
     const stripe = Stripe(process.env.STRIPE_SECRETKEY);

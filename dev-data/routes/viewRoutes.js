@@ -19,11 +19,12 @@ router.get("/", (req, res) => {
 */
 
 const isDevelopmentEnvironment = () => {
-  if (process.env.NODE_ENV === "development")
+  if (process.env.NODE_ENV === "development") {
     return bookingcontroller.createBookingCheckout;
+  }
+  return bookingcontroller.goToNext;
 
   // return bookingcontroller.webhookCheckout;
-  return bookingcontroller.goToNext;
 };
 
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
