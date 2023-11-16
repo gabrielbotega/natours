@@ -120,6 +120,10 @@ exports.webhookCheckout = async (req, res, next, session) => {
   res.status(200).json({ received: true });
 };
 
+exports.goToNext = (req, res, next) => {
+  next();
+};
+
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
