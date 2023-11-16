@@ -19,9 +19,6 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const product = await stripe.products.create({
     name: `${tour.name} Tour`,
     description: tour.summary,
-    metadata: {
-      bookingDate: bookingDate,
-    },
     images: [
       `${req.protocol}://${req.get("host")}/img/tours/${tour.imageCover}`,
     ],
@@ -45,9 +42,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     payment_method_types: ["card"],
 
     success_url: successUrl,
-
+    metadata: {
+      bookingDate: bookingDate,
+    },
     cancel_url: `${req.protocol}://${req.get("host")}/tour/${tour.slug}`,
     customer_email: req.user.email,
+
     client_reference_id: req.params.tourID,
     mode: "payment",
     line_items: [
@@ -91,7 +91,7 @@ const createBooking = async (session) => {
     }
 
     const price = session.line_items[0].price.unit_amount / 100;
-    const tourDate = session.line_items[0].price.product.metadata.bookingDate;
+    const tourDate = session.metadata.bookingDate;
 
     await Booking.create({ tour, user, price, tourDate });
   } catch (error) {
