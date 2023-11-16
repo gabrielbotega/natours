@@ -90,7 +90,7 @@ const createBooking = async (session) => {
       return;
     }
 
-    const price = session.line_items[0].price.unit_amount / 100;
+    const price = session.amount_total / 100;
     const tourDate = session.metadata.bookingDate;
 
     await Booking.create({ tour, user, price, tourDate });
