@@ -23,7 +23,7 @@ const isDevelopmentEnvironment = (req, res, next) => {
     return bookingcontroller.createBookingCheckout;
 
   // return bookingcontroller.webhookCheckout;
-  next();
+  return next();
 };
 
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
