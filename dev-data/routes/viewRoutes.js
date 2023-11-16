@@ -18,11 +18,12 @@ router.get("/", (req, res) => {
 }); //this is the path to the base in the views folder. This will render the site. Express will look into it automatically. It'll take the base template, render and than sent it as a response to the browser
 */
 
-const isDevelopmentEnvironment = () => {
+const isDevelopmentEnvironment = (req, res, next) => {
   if (process.env.NODE_ENV === "development")
     return bookingcontroller.createBookingCheckout;
 
   // return bookingcontroller.webhookCheckout;
+  next();
 };
 
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
@@ -44,12 +45,7 @@ router.get("/me", authcontroller.protect, viewsController.getAccount);
 router.get(
   "/my-tours",
   // Ternary operator to conditionally return middleware
-  isDevelopmentEnvironment()
-    ? bookingcontroller.createBookingCheckout
-    : undefined,
-  (req, res, next) => {
-    next(); // Pass the request to the next middleware
-  },
+  isDevelopmentEnvironment(),
   authcontroller.protect,
   viewsController.getMyTours
 );
