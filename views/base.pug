@@ -14,7 +14,7 @@ html(lang='en')
 
             title Natours | #{title}
 <!--The content defined in the tour.pug (script) will appear here-->
-    body
+    body(data-alert = `${alert ? alert : ""}`)
         // HEADER
         include _header
 

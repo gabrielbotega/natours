@@ -32,10 +32,12 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 
   let successUrl = `${req.protocol}://${req.get("host")}/my-tours/?tour=${
     tour.id
-  }&user=${req.user.id}&price=${tour.price}&tourDate=${bookingDate}`;
+  }&user=${req.user.id}&price=${
+    tour.price
+  }&tourDate=${bookingDate}&alert=booking`;
 
   if (process.env.NODE_ENV === "production") {
-    successUrl = `${req.protocol}://${req.get("host")}/my-tours`;
+    successUrl = `${req.protocol}://${req.get("host")}/my-tours?alert=booking`;
   }
 
   const session = await stripe.checkout.sessions.create({

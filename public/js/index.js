@@ -5,6 +5,7 @@ import { displayMap } from "./mapbox";
 import { login, logout } from "./login";
 import { updateSettings } from "./updateSettings";
 import { signUp } from "./signUp";
+import { showAlert } from "./alerts";
 // import { bookTour } from "./stripe";
 
 //Create DOM element.
@@ -124,6 +125,9 @@ if (bookBtn) {
 
   // }
 }
+
+const alertMessage = document.querySelector("body").dataset.alert;
+if (alert) showAlert("success", alertMessage, 10);
 
 /* ===========================================================
 This index.js is our entry file. Therefore we get data from the user interface and then we delegate actions to some functions

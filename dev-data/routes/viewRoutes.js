@@ -27,6 +27,8 @@ const isDevelopmentEnvironment = () => {
   // return bookingcontroller.webhookCheckout;
 };
 
+router.use(viewsController.alerts);
+
 router.get("/", authcontroller.isLoggedIn, viewsController.getOverview);
 router.get("/overview", authcontroller.isLoggedIn, viewsController.getOverview);
 router.get(

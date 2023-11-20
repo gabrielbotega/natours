@@ -42,6 +42,9 @@ There might be some issues using this method because handling errors could be a 
 Therefore, since we already have an API to be used, we can use it to interact with frontend and update.
 To accomplish this, we need to create another JS file (see udatingSettings.js OR login.js) 
 
+There are other way to make variables accessible in frontend. The way to do it is to use res.locals in our API endpoints. This way we can access
+the variable in the html files.
+
 ========================================================
 Uploading Photos
 
@@ -145,3 +148,15 @@ Therefore, the work around is to put the data that we need to create a new booki
 knowing that Stripe will only make a get request to this URL (we cannot sent body or data except for the query string)
 OBS: query string:  success_url: /?query_string=""
 It's not secure because anyone who knows the structure could go through the checkout process without pay (book without payment)
+
+========================================================
+Weebhooks:
+
+When creating webhooks in Stripe you must pay attention in some situations:
+First, the response to the path is a raw format data, no JSON, that's why you must use express.raw BEFORE parse all the data into JSON.
+Another thing that you should pay attention that took me some days to find out is that the object sent by Stripe change the names of 
+attributes. What I mean by it is that the Session object created in the "bookingController.getCheckoutSession" changes its attributes names.
+Therefore you must check it in the dashboard in the Stripe webhook and then see what you gonna need to use.
+
+A nice solution to create alerts throughout our views is to create a query string variable in the base template and use res.locals to access Whenever
+we want.
